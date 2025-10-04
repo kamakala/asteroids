@@ -1,8 +1,12 @@
 from circleshape import CircleShape
 from constants import *
 import pygame
+from pygame.sprite import Group
+from shot import Shot
+
 
 class Player(CircleShape):
+    containers: tuple[Group, Group]
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -35,8 +39,17 @@ class Player(CircleShape):
             self.move(dt)
         if keys[pygame.K_s]:
             self.move(-dt)
+        if keys[pygame.K_SPACE]:
+            self.shoot()
     
 
     def move(self, dt):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         self.position += forward * PLAYER_SPEED * dt
+
+    def shoot(self):
+        forward = pygame.Vector2(0, 1).rotate(self.rotation)
+        offset = self.radius + SHOT_RADIUS
+        spawn_position = self.position + forward * offset
+        shot = Shot(spawn_position.x, spawn_position.y)
+        shot.velocity = forward * PLAYER_SHOT_SPEED
