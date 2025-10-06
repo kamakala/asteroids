@@ -7,7 +7,8 @@ from shot import Shot
 
 class Player(CircleShape):
     containers: tuple[Group, Group]
-    def __init__(self, x, y):
+    def __init__(self, x, y, timer):
+        self.timer = timer
         self.x = x
         self.y = y
         super().__init__(self.x, self.y, PLAYER_RADIUS)
@@ -30,6 +31,7 @@ class Player(CircleShape):
 
     def update(self, dt):
         keys = pygame.key.get_pressed()
+        
 
         if keys[pygame.K_a]:
             self.rotate(-dt)
@@ -40,6 +42,7 @@ class Player(CircleShape):
         if keys[pygame.K_s]:
             self.move(-dt)
         if keys[pygame.K_SPACE]:
+            self.timer -= dt
             self.shoot()
     
 
@@ -48,8 +51,12 @@ class Player(CircleShape):
         self.position += forward * PLAYER_SPEED * dt
 
     def shoot(self):
+        if self.timer > 0:
+            return
+        self.timer += PLAYER_SHOOT_COOLDOWN
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         offset = self.radius + SHOT_RADIUS
         spawn_position = self.position + forward * offset
         shot = Shot(spawn_position.x, spawn_position.y)
         shot.velocity = forward * PLAYER_SHOT_SPEED
+        
